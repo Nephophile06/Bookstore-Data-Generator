@@ -27,7 +27,7 @@ function getRandomInt(rng, min, max) {
   return Math.floor(rng() * (max - min + 1)) + min;
 }
 
-function generateBook({ rng, locale, index }) {
+function generateBook({ rng, locale, index, seed }) {
   let faker;
   if (locale === 'de') {
     faker = fakerDE;
@@ -37,6 +37,8 @@ function generateBook({ rng, locale, index }) {
     faker = fakerEN;
   }
 
+  const numericSeed = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  faker.seed(numericSeed);
   const isbn = faker.number.int({ min: 1000000000000, max: 9999999999999 }).toString();
 
   let title;
@@ -60,7 +62,7 @@ function generateBook({ rng, locale, index }) {
   return { isbn, title, authors, publisher };
 }
 
-function generateReviews({ rng, locale, avgReviews }) {
+function generateReviews({ rng, locale, avgReviews, seed }) {
   let faker;
   if (locale === 'de') {
     faker = fakerDE;
@@ -69,6 +71,9 @@ function generateReviews({ rng, locale, avgReviews }) {
   } else {
     faker = fakerEN;
   }
+
+  const numericSeed = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  faker.seed(numericSeed);
 
   const reviews = [];
   const intPart = Math.floor(avgReviews);
@@ -133,13 +138,16 @@ app.get('/books', (req, res) => {
   const avgReviewsNum = parseFloat(avgReviews);
   const books = [];
   const usedLocale = getLocale(locale);
+
   for (let i = 0; i < size; i++) {
     const index = (pageNum - 1) * size + i + 1;
-    const bookRng = seedrandom(combineSeed(seed, `${pageNum}-${i}`));
-    const book = generateBook({ rng: bookRng, locale: usedLocale, index });
+    const bookSeed = combineSeed(seed, `${pageNum}-${i}`);
+    const bookRng = seedrandom(bookSeed);
+
+    const book = generateBook({ rng: bookRng, locale: usedLocale, index, seed: bookSeed });
     book.index = index;
     book.likes = generateLikes({ rng: bookRng, avgLikes: avgLikesNum });
-    book.reviews = generateReviews({ rng: bookRng, locale: usedLocale, avgReviews: avgReviewsNum });
+    book.reviews = generateReviews({ rng: bookRng, locale: usedLocale, avgReviews: avgReviewsNum, seed: bookSeed });
     books.push(book);
   }
   res.json({ books });
@@ -147,7 +155,7 @@ app.get('/books', (req, res) => {
 
 app.get('/cover', (req, res) => {
   const { title = '', author = '' } = req.query;
-  const width = 200;
+  const width = 250;
   const height = 300;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
