@@ -3,7 +3,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Papa from 'papaparse';
 import './App.css';
 
-const API_URL = 'http://localhost:4000';
+const API_URL = 'https://bookstore-data-generator-backend.onrender.com/';
 
 function randomSeed() {
   return Math.floor(Math.random() * 10000000).toString();
@@ -82,11 +82,11 @@ function BookDetails({ book }) {
   );
 }
 
-function Controls({ 
-  locales, locale, setLocale, 
-  seed, setSeed, 
-  avgLikes, setAvgLikes, 
-  avgReviews, setAvgReviews, 
+function Controls({
+  locales, locale, setLocale,
+  seed, setSeed,
+  avgLikes, setAvgLikes,
+  avgReviews, setAvgReviews,
   onRandomSeed, onExport
 }) {
   return (
@@ -109,12 +109,12 @@ function Controls({
       </label>
       <label>
         Review
-        <input 
-          type="number" 
-          min="0" 
-          max="10" 
-          step="0.1" 
-          value={avgReviews} 
+        <input
+          type="number"
+          min="0"
+          max="10"
+          step="0.1"
+          value={avgReviews}
           onChange={e => setAvgReviews(e.target.value)}
           style={{ width: '70px' }}
         />
@@ -142,10 +142,10 @@ function App() {
   const fetchBooks = (pageToFetch, reset = false) => {
     if (loadingRef.current && !reset) return;
     loadingRef.current = true;
-  
+
     const controller = new AbortController();
     const signal = controller.signal;
-  
+
     fetch(`${API_URL}/books?locale=${locale}&seed=${seed}&avgLikes=${avgLikes}&avgReviews=${avgReviews}&page=${pageToFetch}&pageSize=${pageSize}`, { signal })
       .then(r => r.json())
       .then(data => {
@@ -161,10 +161,10 @@ function App() {
         }
         loadingRef.current = false;
       });
-  
+
     return () => controller.abort();
   };
-  
+
   useEffect(() => {
     fetch(`${API_URL}/locales`).then(r => r.json()).then(setLocales);
   }, []);
@@ -221,12 +221,12 @@ function App() {
         onRandomSeed={() => setSeed(randomSeed())}
         onExport={handleExportCSV}
       />
-      
+
       <InfiniteScroll
         dataLength={books.length}
         next={() => fetchBooks(page)}
         hasMore={hasMore}
-        loader={<h4 style={{textAlign: 'center'}}>Loading...</h4>}
+        loader={<h4 style={{ textAlign: 'center' }}>Loading...</h4>}
         scrollThreshold={0.95}
       >
         <BookTable books={books} onExpand={handleExpand} expandedIndex={expandedIndex} />
