@@ -188,6 +188,19 @@ app.get('/cover', (req, res) => {
   canvas.pngStream().pipe(res);
 });
 
+const path = require('path');
+
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, 'frontend/build')));
+
+// Catch all handler: send back React's index.html file for any non-API requests
+app.get('*', (req, res) => {
+  // Only serve index.html for non-API routes
+  if (!req.path.startsWith('/books') && !req.path.startsWith('/cover') && !req.path.startsWith('/locales')) {
+    res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Bookstore test data server running on port ${PORT}`);
 });
