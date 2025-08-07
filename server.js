@@ -27,10 +27,6 @@ function getRandomInt(rng, min, max) {
   return Math.floor(rng() * (max - min + 1)) + min;
 }
 
-function getRandomFloat(rng, min, max) {
-  return rng() * (max - min) + min;
-}
-
 function generateBook({ rng, locale, index }) {
   let faker;
   if (locale === 'de') {
@@ -40,9 +36,9 @@ function generateBook({ rng, locale, index }) {
   } else {
     faker = fakerEN;
   }
-  
+
   const isbn = faker.number.int({ min: 1000000000000, max: 9999999999999 }).toString();
-  
+
   let title;
   switch (locale) {
     case 'de':
@@ -52,12 +48,12 @@ function generateBook({ rng, locale, index }) {
       title = faker.lorem.words(getRandomInt(rng, 2, 5));
       break;
     case 'en':
-    default: 
+    default:
       title = faker.company.catchPhrase();
       break;
   }
   title = title.charAt(0).toUpperCase() + title.slice(1);
-  
+
   const authorCount = getRandomInt(rng, 1, 3);
   const authors = Array.from({ length: authorCount }, () => faker.person.fullName());
   const publisher = faker.company.name();
@@ -86,8 +82,8 @@ function generateReviews({ rng, locale, avgReviews }) {
         const sentenceCount = getRandomInt(rng, 2, 3);
         const sentences = [];
         for (let j = 0; j < sentenceCount; j++) {
-            const sentence = `der ${faker.word.adjective()} ${faker.word.noun()} ${faker.word.verb()} die ${faker.word.adjective()} ${faker.word.noun()}.`;
-            sentences.push(sentence.charAt(0).toUpperCase() + sentence.slice(1));
+          const sentence = `der ${faker.word.adjective()} ${faker.word.noun()} ${faker.word.verb()} die ${faker.word.adjective()} ${faker.word.noun()}.`;
+          sentences.push(sentence.charAt(0).toUpperCase() + sentence.slice(1));
         }
         text = sentences.join(' ');
         break;
@@ -101,7 +97,7 @@ function generateReviews({ rng, locale, avgReviews }) {
         text = text.charAt(0).toUpperCase() + text.slice(1) + '.';
         break;
     }
-    
+
     reviews.push({
       author: faker.person.fullName(),
       text,
@@ -137,7 +133,6 @@ app.get('/books', (req, res) => {
   const avgReviewsNum = parseFloat(avgReviews);
   const books = [];
   const usedLocale = getLocale(locale);
-  const rng = seedrandom(combineSeed(seed, pageNum));
   for (let i = 0; i < size; i++) {
     const index = (pageNum - 1) * size + i + 1;
     const bookRng = seedrandom(combineSeed(seed, `${pageNum}-${i}`));
@@ -156,23 +151,39 @@ app.get('/cover', (req, res) => {
   const height = 300;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
-  // Pastel background
-  const pastelColors = [
-    '#ffe4ec', '#e3f6fd', '#e4ecff', '#eaf7e4', '#fffbe4', '#f7e4ff', '#e4fff7', '#fdf6e3'
+
+  const coverColors = [
+    '#e3f2fd', // Light Blue
+    '#e8eaf6', // Light Indigo
+    '#e0f2f1', // Light Teal
+    '#fce4ec', // Light Pink
+    '#f1f8e9', // Light Green
   ];
-  ctx.fillStyle = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+
+  const rng = seedrandom(title);
+  const colorIndex = Math.floor(rng() * coverColors.length);
+  ctx.fillStyle = coverColors[colorIndex];
   ctx.fillRect(0, 0, width, height);
-  // Title
+
   ctx.font = 'bold 18px Arial';
   ctx.fillStyle = '#222';
   ctx.textAlign = 'center';
-  ctx.fillText(title, width / 2, 80, width - 20);
-  // Author
+  const words = title.split(' ');
+  if (words.length > 3) {
+    const line1 = words.slice(0, 3).join(' ');
+    const line2 = words.slice(3).join(' ');
+    ctx.fillText(line1, width / 2, 70, width - 20);
+    ctx.fillText(line2, width / 2, 95, width - 20);
+  } else {
+    ctx.fillText(title, width / 2, 80, width - 20);
+  }
+
   ctx.font = 'italic 14px Arial';
   ctx.fillText(author, width / 2, 120, width - 20);
-  // Border
+
   ctx.strokeStyle = '#cfcfcf';
   ctx.strokeRect(0, 0, width, height);
+
   res.set('Content-Type', 'image/png');
   canvas.pngStream().pipe(res);
 });
