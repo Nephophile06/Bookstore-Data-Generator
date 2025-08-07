@@ -3,7 +3,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Papa from 'papaparse';
 import './App.css';
 
-const API_URL = 'https://bookstore-data-generator-backend.onrender.com/';
+const API_URL = 'https://bookstore-data-generator-backend.onrender.com';
 
 function randomSeed() {
   return Math.floor(Math.random() * 10000000).toString();
