@@ -194,12 +194,13 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, 'frontend/build')));
 
 // Catch all handler: send back React's index.html file for any non-API requests
-app.get('*', (req, res, next) => {
+app.use((req, res) => {
   // Only serve index.html for non-API routes
-  if (req.path.startsWith('/books') || req.path.startsWith('/cover') || req.path.startsWith('/locales')) {
-    return next();
+  if (!req.path.startsWith('/books') && !req.path.startsWith('/cover') && !req.path.startsWith('/locales')) {
+    res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
+  } else {
+    res.status(404).json({ error: 'Not found' });
   }
-  res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
 });
 
 app.listen(PORT, () => {
