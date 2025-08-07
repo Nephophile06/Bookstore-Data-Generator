@@ -153,11 +153,11 @@ app.get('/cover', (req, res) => {
   const ctx = canvas.getContext('2d');
 
   const coverColors = [
-    '#e3f2fd', // Light Blue
-    '#e8eaf6', // Light Indigo
-    '#e0f2f1', // Light Teal
-    '#fce4ec', // Light Pink
-    '#f1f8e9', // Light Green
+    '#e3f2fd',
+    '#e8eaf6',
+    '#e0f2f1',
+    '#fce4ec',
+    '#f1f8e9',
   ];
 
   const rng = seedrandom(title);
@@ -190,12 +190,9 @@ app.get('/cover', (req, res) => {
 
 const path = require('path');
 
-// Serve static files from the React app build directory
 app.use(express.static(path.join(__dirname, 'frontend/build')));
 
-// Catch all handler: send back React's index.html file for any non-API requests
 app.use((req, res) => {
-  // Only serve index.html for non-API routes
   if (!req.path.startsWith('/books') && !req.path.startsWith('/cover') && !req.path.startsWith('/locales')) {
     res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
   } else {
