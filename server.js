@@ -5,7 +5,7 @@ const seedrandom = require('seedrandom');
 const { createCanvas } = require('canvas');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 
@@ -200,6 +200,6 @@ app.use((req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Bookstore test data server running on port ${PORT}`);
 });
